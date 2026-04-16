@@ -22,7 +22,7 @@ export default function DashboardPage() {
   }, [user, router]);
 
   return (
-    <div className="flex items-center justify-center min-h-screen">
+    <div className="flex items-center justify-center min-h-screen pt-14 md:pt-0">
       <p className="text-gray-500">Loading...</p>
     </div>
   );

@@ -5,6 +5,7 @@ import { usePathname, useRouter } from 'next/navigation';
 import { Button } from '@/components/ui/button';
 import { useAuth } from '@/lib/hooks/useAuth';
 import { cn } from '@/lib/utils';
+import { useState } from 'react';
 
 const studentMenuItems = [
   { label: 'Dashboard', href: '/dashboard/student', icon: '📊' },
@@ -31,6 +32,7 @@ export function Sidebar() {
   const pathname = usePathname();
   const router = useRouter();
   const { user = {}, logout } = useAuth();
+  const [mobileOpen, setMobileOpen] = useState(false);
 
   const menuItems =
     user?.role === 'student' ? studentMenuItems :
@@ -42,8 +44,8 @@ export function Sidebar() {
     router.push('/');
   };
 
-  return (
-    <div className="w-64 bg-gradient-to-b from-blue-600 to-blue-700 text-white flex flex-col h-screen">
+  const SidebarContent = () => (
+    <div className="flex flex-col h-full">
       {/* Logo */}
       <div className="p-6 border-b border-blue-500">
         <h1 className="text-2xl font-bold">🧺 WashMate</h1>
@@ -54,7 +56,7 @@ export function Sidebar() {
         </p>
       </div>
 
-      {/* User Info — NO role switching buttons */}
+      {/* User Info */}
       <div className="p-4 border-b border-blue-500">
         <p className="text-sm font-medium">{user?.name}</p>
         <p className="text-xs text-blue-100">{user?.email}</p>
@@ -66,6 +68,7 @@ export function Sidebar() {
           <Link
             key={item.href}
             href={item.href}
+            onClick={() => setMobileOpen(false)}
             className={cn(
               'flex items-center gap-3 px-4 py-2 rounded-lg text-sm font-medium transition-colors',
               pathname === item.href
@@ -90,5 +93,39 @@ export function Sidebar() {
         </Button>
       </div>
     </div>
+  );
+
+  return (
+    <>
+      {/* Mobile top bar */}
+      <div className="md:hidden fixed top-0 left-0 right-0 z-50 bg-blue-600 text-white flex items-center justify-between px-4 py-3">
+        <h1 className="text-xl font-bold">🧺 WashMate</h1>
+        <button
+          onClick={() => setMobileOpen(!mobileOpen)}
+          className="text-2xl focus:outline-none"
+        >
+          {mobileOpen ? '✕' : '☰'}
+        </button>
+      </div>
+
+      {/* Mobile drawer */}
+      {mobileOpen && (
+        <div className="md:hidden fixed inset-0 z-40 flex">
+          <div className="w-64 bg-gradient-to-b from-blue-600 to-blue-700 text-white h-full overflow-y-auto pt-14">
+            <SidebarContent />
+          </div>
+          {/* Backdrop */}
+          <div
+            className="flex-1 bg-black/40"
+            onClick={() => setMobileOpen(false)}
+          />
+        </div>
+      )}
+
+      {/* Desktop sidebar */}
+      <div className="hidden md:flex w-64 bg-gradient-to-b from-blue-600 to-blue-700 text-white flex-col h-screen">
+        <SidebarContent />
+      </div>
+    </>
   );
 }

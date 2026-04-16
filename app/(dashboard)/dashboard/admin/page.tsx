@@ -22,7 +22,7 @@ export default function AdminDashboard() {
   const completedOrders = orders.filter(o => o.status === 'delivered').length;
 
   return (
-    <div className="flex h-screen bg-gray-50">
+    <div className="flex h-screen bg-gray-50 pt-14 md:pt-0">
       <Sidebar />
       
       <div className="flex-1 flex flex-col overflow-hidden">
