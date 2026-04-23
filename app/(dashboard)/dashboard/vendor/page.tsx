@@ -208,8 +208,8 @@ export default function VendorDashboard() {
 
   // ✅ FIX: fallback vendor id (for single vendor app)
   const vendorId =  "vendor-1";
-
-  const { orders } = useOrders(vendorId, 'vendor');
+  const getId = (o) => o?._id || o?.id;
+  const { orders, loading, error } = useOrders();
 
   // Get vendor info
   const vendor = mockVendors.find(v => v.id === vendorId) || {
@@ -287,7 +287,7 @@ export default function VendorDashboard() {
                   <p className="text-center text-gray-500">No orders yet</p>
                 ) : (
                   pendingOrders.map(order => (
-                    <div key={order.id} className="border p-4 rounded mb-3">
+                    <div key={getId(order)} className="border p-4 rounded mb-3">
                       <p><b>{order.studentName}</b></p>
                       <p>{order.serviceType}</p>
                       <p>{order.quantity} items</p>

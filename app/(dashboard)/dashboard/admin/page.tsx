@@ -11,7 +11,7 @@ import { mockVendors, mockUsers } from '@/lib/utils/mockData';
 import Link from 'next/link';
 
 export default function AdminDashboard() {
-  const { orders } = useOrders(undefined, 'admin');
+  const { orders, loading, error } = useOrders();;
   
   const users = storage.getUsers();
   const vendors = mockVendors;

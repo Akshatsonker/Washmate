@@ -10,15 +10,20 @@ import { useAuth } from '@/lib/hooks/useAuth';
 import { useOrders } from '@/lib/hooks/useOrders';
 import Link from 'next/link';
 import { useParams } from 'next/navigation';
+import { useEffect, useState } from 'react';
 
 export default function OrderDetailPage() {
   const params = useParams();
   const orderId = params?.id as string;
-
+  const getId = (o) => o?._id || o?.id || '';
   const { user } = useAuth();
-  const { orders } = useOrders(user?.id || "student1", 'student');
+  const { orders, loading, error } = useOrders();
+  
+  // ✅ FIX HYDRATION: Add mounted state
+  const [mounted, setMounted] = useState(false);
+  useEffect(() => { setMounted(true); }, []);
 
-  const order = orders.find(o => o.id === orderId);
+  const order = orders.find(o => (o._id === orderId || o.id === orderId));
 
   // ✅ DELIVERY DATE (+5 days)
   const getDeliveryDate = (pickupDate: string) => {
@@ -26,6 +31,33 @@ export default function OrderDetailPage() {
     date.setDate(date.getDate() + 5);
     return date;
   };
+
+  const getStatusColor = (status: string) => {
+    switch (status) {
+      case 'placed': return 'bg-yellow-100 text-yellow-800';
+      case 'accepted': return 'bg-blue-100 text-blue-800';
+      case 'processing': return 'bg-purple-100 text-purple-800';
+      case 'ready':
+      case 'delivered': return 'bg-green-100 text-green-800';
+      case 'rejected': return 'bg-red-100 text-red-800';
+      default: return 'bg-gray-100 text-gray-800';
+    }
+  };
+
+  // ✅ Show loading shell on server and client until mounted
+  if (!mounted || loading) {
+    return (
+      <div className="flex h-screen bg-gray-50">
+        <Sidebar />
+        <div className="flex-1 flex flex-col">
+          <TopNav title="Order Details" />
+          <div className="flex-1 flex items-center justify-center">
+            <p className="text-gray-400">Loading order...</p>
+          </div>
+        </div>
+      </div>
+    );
+  }
 
   if (!order) {
     return (
@@ -48,24 +80,6 @@ export default function OrderDetailPage() {
     );
   }
 
-  const getStatusColor = (status: string) => {
-    switch (status) {
-      case 'placed':
-        return 'bg-yellow-100 text-yellow-800';
-      case 'accepted':
-        return 'bg-blue-100 text-blue-800';
-      case 'processing':
-        return 'bg-purple-100 text-purple-800';
-      case 'ready':
-      case 'delivered':
-        return 'bg-green-100 text-green-800';
-      case 'rejected':
-        return 'bg-red-100 text-red-800';
-      default:
-        return 'bg-gray-100 text-gray-800';
-    }
-  };
-
   return (
     <div className="flex h-screen bg-gray-50">
       <Sidebar />
@@ -80,7 +94,7 @@ export default function OrderDetailPage() {
             <div className="flex items-center justify-between">
               <div>
                 <h1 className="text-3xl font-bold text-gray-900">
-                  Order #{order.id.slice(-8)}
+                  Order #{getId(order).slice(-8)}
                 </h1>
                 <p className="text-gray-600 mt-2">
                   {order.serviceType}
@@ -176,7 +190,6 @@ export default function OrderDetailPage() {
                     </p>
                   </div>
 
-                  {/* ✅ FIXED DELIVERY DATE */}
                   <div>
                     <p className="text-sm text-gray-600">Expected Delivery</p>
                     <p className="font-semibold text-gray-900">
@@ -210,7 +223,7 @@ export default function OrderDetailPage() {
               </Card>
             )}
 
-            {/* Actions */}
+            {/* Actions - ✅ FIX: Use _id instead of id */}
             <div className="flex gap-4">
               <Link href="/dashboard/student/orders" className="flex-1">
                 <Button variant="outline" className="w-full">
@@ -218,7 +231,7 @@ export default function OrderDetailPage() {
                 </Button>
               </Link>
 
-              <Link href={`/dashboard/student/messages?order=${order.id}`} className="flex-1">
+              <Link href={`/dashboard/student/messages?order=${getId(order)}`} className="flex-1">
                 <Button className="w-full">
                   💬 Message Vendor
                 </Button>

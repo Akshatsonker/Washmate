@@ -13,9 +13,9 @@ import Link from 'next/link';
 
 export default function StudentOrdersPage() {
   const { user } = useAuth();
-  const { orders, refetch } = useOrders(user?.id, 'student');
+  const { orders, loading, error, refetch } = useOrders();
   const [showForm, setShowForm] = useState(false);
-
+  const getId= (o)=> o?._id || o?.id;
   const activeOrders = orders.filter(o => 
     o.status === 'placed' || o.status === 'accepted' || o.status === 'processing'
   );
@@ -111,8 +111,8 @@ export default function StudentOrdersPage() {
                 ) : (
                   activeOrders.map((order) => (
                     <Link
-                      key={order.id}
-                      href={`/dashboard/student/orders/${order.id}`}
+                      key={getId(order)}
+                      href={`/dashboard/student/orders/${getId(order)}`}
                     >
                       <Card className="hover:border-blue-400 hover:shadow-md transition-all cursor-pointer">
                         <CardContent className="pt-6">
@@ -158,8 +158,8 @@ export default function StudentOrdersPage() {
                 ) : (
                   readyOrders.map((order) => (
                     <Link
-                      key={order.id}
-                      href={`/dashboard/student/orders/${order.id}`}
+                      key={getId(order)}
+                      href={`/dashboard/student/orders/${getId(order)}`}
                     >
                       <Card className="border-green-200 bg-green-50 hover:border-green-400 hover:shadow-md transition-all cursor-pointer">
                         <CardContent className="pt-6">
@@ -201,8 +201,8 @@ export default function StudentOrdersPage() {
                 ) : (
                   completedOrders.map((order) => (
                     <Link
-                      key={order.id}
-                      href={`/dashboard/student/orders/${order.id}`}
+                      key={getId(order)}
+                      href={`/dashboard/student/orders/${getId(order)}`}
                     >
                       <Card className="hover:border-gray-400 transition-all cursor-pointer opacity-75">
                         <CardContent className="pt-6">

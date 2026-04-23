@@ -9,7 +9,7 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/com
 import { Alert, AlertDescription } from '@/components/ui/alert';
 import { useAuth } from '@/lib/hooks/useAuth';
 import { initializeMockData } from '@/lib/utils/mockData';
-
+import { clearSession } from '@/lib/hooks/useAuth';
 export default function LoginPage() {
   const router = useRouter();
   const { isAuthenticated, login } = useAuth();
@@ -21,7 +21,7 @@ export default function LoginPage() {
 
   useEffect(() => {
     // ✅ Clear session and init data ONCE on mount
-    storage.clearAuth();
+    clearSession();
     initializeMockData();
   }, []); // ← empty deps, runs only once
 
@@ -93,16 +93,18 @@ export default function LoginPage() {
               />
             </div>
 
-            <Button type="submit" className="w-full" disabled={loading}>
+            <Button type="submit" className="w-full" disabled={loading} suppressHydrationWarning>
               {loading ? 'Signing in...' : 'Sign In'}
             </Button>
           </form>
 
           {/* Hint for users */}
-          <div className="text-center text-xs text-gray-400 space-y-1">
-            <p>Student: any email + any password</p>
-            <p>Vendor: keshavlaundry@gmail.com</p>
-          </div>
+         <p className="text-sm text-center mt-4">
+  Don’t have an account?{' '}
+  <a href="/register" className="text-blue-600 underline">
+    Register here
+  </a>
+</p>
         </CardContent>
       </Card>
     </div>

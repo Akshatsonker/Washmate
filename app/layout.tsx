@@ -1,4 +1,4 @@
-import type { Metadata } from 'next'
+import type { Metadata, Viewport } from 'next'  // ← Add Viewport import
 import { Geist, Geist_Mono } from 'next/font/google'
 import { Analytics } from '@vercel/analytics/next'
 import './globals.css'
@@ -9,7 +9,6 @@ const _geistMono = Geist_Mono({ subsets: ["latin"] });
 export const metadata: Metadata = {
   title: 'WashMate - Laundry Management Platform',
   description: 'Manage your laundry orders with ease. Connect with local laundry vendors for fast, reliable service.',
- // generator: 'v0.app',
   keywords: 'laundry, on-demand, order management, cleaning service',
   icons: {
     icon: [
@@ -28,11 +27,15 @@ export const metadata: Metadata = {
     ],
     apple: '/apple-icon.png',
   },
-  viewport: {
-    width: 'device-width',
-    initialScale: 1,
-    maximumScale: 1,
-  },
+  // ❌ Remove viewport from here
+}
+
+// ✅ Add separate viewport export
+export const viewport: Viewport = {
+  width: 'device-width',
+  initialScale: 1,
+  maximumScale: 1,
+  userScalable: true,  // Optional: add this for better control
 }
 
 export default function RootLayout({

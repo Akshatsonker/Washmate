@@ -17,6 +17,10 @@ const studentMenuItems = [
 const vendorMenuItems = [
   { label: 'Dashboard', href: '/dashboard/vendor', icon: '📊' },
   { label: 'Incoming Orders', href: '/dashboard/vendor/orders', icon: '📥' },
+
+  // ✅ FIX ADDED HERE
+  { label: 'Messages', href: '/dashboard/vendor/messages', icon: '💬' },
+
   { label: 'Analytics', href: '/dashboard/vendor/analytics', icon: '📈' },
   { label: 'Settings', href: '/dashboard/vendor/settings', icon: '⚙️' },
 ];
@@ -35,9 +39,11 @@ export function Sidebar() {
   const [mobileOpen, setMobileOpen] = useState(false);
 
   const menuItems =
-    user?.role === 'student' ? studentMenuItems :
-    user?.role === 'vendor' ? vendorMenuItems :
-    adminMenuItems;
+    user?.role === 'student'
+      ? studentMenuItems
+      : user?.role === 'vendor'
+      ? vendorMenuItems
+      : adminMenuItems;
 
   const handleLogout = () => {
     logout();
@@ -71,7 +77,9 @@ export function Sidebar() {
             onClick={() => setMobileOpen(false)}
             className={cn(
               'flex items-center gap-3 px-4 py-2 rounded-lg text-sm font-medium transition-colors',
-              pathname === item.href
+              
+              // ✅ BETTER ACTIVE MATCH (fix partial routes)
+              pathname.startsWith(item.href)
                 ? 'bg-blue-500 text-white'
                 : 'text-blue-100 hover:bg-blue-500/50'
             )}
@@ -114,7 +122,6 @@ export function Sidebar() {
           <div className="w-64 bg-gradient-to-b from-blue-600 to-blue-700 text-white h-full overflow-y-auto pt-14">
             <SidebarContent />
           </div>
-          {/* Backdrop */}
           <div
             className="flex-1 bg-black/40"
             onClick={() => setMobileOpen(false)}

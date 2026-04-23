@@ -1,5 +1,5 @@
-
 'use client';
+
 import { Sidebar } from '@/components/shared/Sidebar';
 import { TopNav } from '@/components/shared/TopNav';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
@@ -11,13 +11,20 @@ import Link from 'next/link';
 
 export default function StudentDashboard() {
   const { user } = useAuth();
-  const { orders } = useOrders(user?.id, 'student');
+  const { orders, loading, error } = useOrders();
 
-  const activeOrders = orders.filter(o => 
-    o.status === 'placed' || o.status === 'accepted' || o.status === 'processing'
+  const getId = (o: any) => o._id || o.id; // ✅ helper for Mongo/local
+
+  const activeOrders = orders.filter(
+    (o: any) =>
+      o.status === 'placed' ||
+      o.status === 'accepted' ||
+      o.status === 'processing'
   );
-  const completedOrders = orders.filter(o => 
-    o.status === 'delivered' || o.status === 'rejected'
+
+  const completedOrders = orders.filter(
+    (o: any) =>
+      o.status === 'delivered' || o.status === 'rejected'
   );
 
   const getStatusColor = (status: string) => {
@@ -42,12 +49,13 @@ export default function StudentDashboard() {
   return (
     <div className="flex h-screen bg-gray-50">
       <Sidebar />
-      
+
       <div className="flex-1 flex flex-col overflow-hidden">
         <TopNav title="Student Dashboard" />
-        
+
         <div className="flex-1 overflow-auto p-8">
           <div className="max-w-6xl mx-auto space-y-8">
+
             {/* Header */}
             <div>
               <h1 className="text-3xl font-bold text-gray-900">
@@ -58,50 +66,67 @@ export default function StudentDashboard() {
               </p>
             </div>
 
-            {/* Quick Stats */}
+            {/* Stats */}
             <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
               <Card>
                 <CardHeader className="pb-2">
-                  <CardTitle className="text-sm font-medium text-gray-600">Active Orders</CardTitle>
+                  <CardTitle className="text-sm text-gray-600">
+                    Active Orders
+                  </CardTitle>
                 </CardHeader>
                 <CardContent>
-                  <p className="text-3xl font-bold text-blue-600">{activeOrders.length}</p>
-                </CardContent>
-              </Card>
-              
-              <Card>
-                <CardHeader className="pb-2">
-                  <CardTitle className="text-sm font-medium text-gray-600">Completed Orders</CardTitle>
-                </CardHeader>
-                <CardContent>
-                  <p className="text-3xl font-bold text-green-600">{completedOrders.length}</p>
-                </CardContent>
-              </Card>
-              
-              <Card>
-                <CardHeader className="pb-2">
-                  <CardTitle className="text-sm font-medium text-gray-600">Total Spent</CardTitle>
-                </CardHeader>
-                <CardContent>
-                  <p className="text-3xl font-bold text-purple-600">
-                    ${orders.reduce((sum, o) => sum + o.price, 0).toFixed(2)}
+                  <p className="text-3xl font-bold text-blue-600">
+                    {activeOrders.length}
                   </p>
                 </CardContent>
               </Card>
-              
+
               <Card>
                 <CardHeader className="pb-2">
-                  <CardTitle className="text-sm font-medium text-gray-600">Total Orders</CardTitle>
+                  <CardTitle className="text-sm text-gray-600">
+                    Completed Orders
+                  </CardTitle>
                 </CardHeader>
                 <CardContent>
-                  <p className="text-3xl font-bold text-orange-600">{orders.length}</p>
+                  <p className="text-3xl font-bold text-green-600">
+                    {completedOrders.length}
+                  </p>
+                </CardContent>
+              </Card>
+
+              <Card>
+                <CardHeader className="pb-2">
+                  <CardTitle className="text-sm text-gray-600">
+                    Total Spent
+                  </CardTitle>
+                </CardHeader>
+                <CardContent>
+                  <p className="text-3xl font-bold text-purple-600">
+                    $
+                    {orders
+                      .reduce((sum: number, o: any) => sum + (o.price || 0), 0)
+                      .toFixed(2)}
+                  </p>
+                </CardContent>
+              </Card>
+
+              <Card>
+                <CardHeader className="pb-2">
+                  <CardTitle className="text-sm text-gray-600">
+                    Total Orders
+                  </CardTitle>
+                </CardHeader>
+                <CardContent>
+                  <p className="text-3xl font-bold text-orange-600">
+                    {orders.length}
+                  </p>
                 </CardContent>
               </Card>
             </div>
 
-            {/* Active Orders Section */}
+            {/* Active Orders */}
             <Card>
-              <CardHeader className="flex flex-row items-center justify-between">
+              <CardHeader className="flex justify-between items-center">
                 <CardTitle>Active Orders</CardTitle>
                 <Link href="/dashboard/student/orders">
                   <Button size="sm" variant="outline">
@@ -109,42 +134,58 @@ export default function StudentDashboard() {
                   </Button>
                 </Link>
               </CardHeader>
+
               <CardContent>
                 {activeOrders.length === 0 ? (
                   <div className="text-center py-8">
-                    <p className="text-gray-500 mb-4">No active orders</p>
+                    <p className="text-gray-500 mb-4">
+                      No active orders
+                    </p>
                     <Link href="/dashboard/student/orders">
                       <Button>Create New Order</Button>
                     </Link>
                   </div>
                 ) : (
                   <div className="space-y-3">
-                    {activeOrders.map((order) => (
+                    {activeOrders.map((order: any) => (
                       <Link
-                        key={order.id}
-                        href={`/dashboard/student/orders/${order.id}`}
-                        className="block p-4 border border-gray-200 rounded-lg hover:border-blue-400 hover:bg-blue-50 transition-colors"
+                        key={getId(order)} // ✅ FIXED
+                        href={`/dashboard/student/orders/${getId(order)}`} // ✅ FIXED
+                        className="block p-4 border border-gray-200 rounded-lg hover:border-blue-400 hover:bg-blue-50 transition"
                       >
-                        <div className="flex items-center justify-between">
-                          <div className="flex-1">
+                        <div className="flex justify-between">
+                          <div>
                             <div className="flex items-center gap-3 mb-2">
                               <p className="font-medium text-gray-900">
-                                {order.serviceType.charAt(0).toUpperCase() + order.serviceType.slice(1)}
+                                {order.serviceType?.charAt(0).toUpperCase() +
+                                  order.serviceType?.slice(1)}
                               </p>
+
                               <Badge className={getStatusColor(order.status)}>
-                                {order.status.charAt(0).toUpperCase() + order.status.slice(1)}
+                                {order.status?.charAt(0).toUpperCase() +
+                                  order.status?.slice(1)}
                               </Badge>
                             </div>
+
                             <p className="text-sm text-gray-600">
                               Vendor: {order.vendorName || 'Not assigned'}
                             </p>
+
                             <p className="text-sm text-gray-500 mt-1">
-                              Pickup: {new Date(order.pickupDate).toLocaleDateString()}
+                              Pickup:{' '}
+                              {order.pickupDate
+                                ? new Date(order.pickupDate).toLocaleDateString()
+                                : 'N/A'}
                             </p>
                           </div>
+
                           <div className="text-right">
-                            <p className="font-semibold text-gray-900">${order.price.toFixed(2)}</p>
-                            <p className="text-sm text-gray-500">{order.quantity} items</p>
+                            <p className="font-semibold text-gray-900">
+                              ${order.price?.toFixed(2)}
+                            </p>
+                            <p className="text-sm text-gray-500">
+                              {order.quantity} items
+                            </p>
                           </div>
                         </div>
                       </Link>
@@ -154,11 +195,12 @@ export default function StudentDashboard() {
               </CardContent>
             </Card>
 
-            {/* Recent Activity */}
+            {/* Quick Actions */}
             <Card>
               <CardHeader>
                 <CardTitle>Quick Actions</CardTitle>
               </CardHeader>
+
               <CardContent>
                 <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
                   <Link href="/dashboard/student/orders">
@@ -166,11 +208,13 @@ export default function StudentDashboard() {
                       📦 New Order
                     </Button>
                   </Link>
+
                   <Link href="/dashboard/student/messages">
                     <Button variant="outline" className="w-full" size="lg">
                       💬 Messages
                     </Button>
                   </Link>
+
                   <Link href="/dashboard/student/history">
                     <Button variant="outline" className="w-full" size="lg">
                       📜 Order History
@@ -179,6 +223,7 @@ export default function StudentDashboard() {
                 </div>
               </CardContent>
             </Card>
+
           </div>
         </div>
       </div>
